@@ -10,6 +10,9 @@ namespace CME
     {
         static void Main(string[] args)
         {
+
+            Console.WriteLine("Inicializing Project...");
+
         }
     }
 }
