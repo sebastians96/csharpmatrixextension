@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CME
+namespace csharpmatrixextension
 {
     class Matrix<T> where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
     {
@@ -15,10 +15,10 @@ namespace CME
         {
             RowNumber = m.Data.GetLength(0);
             ColumnNumber = m.Data.GetLength(1);
-            Data = new T[RowNumber,ColumnNumber];
-            for (int i=0; i<RowNumber; i++)
+            Data = new T[RowNumber, ColumnNumber];
+            for (int i = 0; i < RowNumber; i++)
             {
-                for (int j=0; j<ColumnNumber;j++)
+                for (int j = 0; j < ColumnNumber; j++)
                 {
                     Data[i, j] = m.Data[i, j];
                 }
@@ -50,8 +50,8 @@ namespace CME
             {
                 for (int j = 0; j < ColumnNumber; j++)
                 {
-                    double [,] d = new double[1,1];
-                    float [,] f = new float[1,1];
+                    double[,] d = new double[1, 1];
+                    float[,] f = new float[1, 1];
                     if (Data.GetType() == d.GetType() || Data.GetType() == f.GetType()) Console.Write("{0:N2} ", (Data[i, j]));
                     else Console.Write("{0} ", (Data[i, j]));
                 }
@@ -82,8 +82,8 @@ namespace CME
 
         public static Matrix<T> Identity(int r)
         {
-            Matrix<T> array =  Matrix<T>.Zeros(r, r);
-            for(int i=1; i<=r; i++)
+            Matrix<T> array = Matrix<T>.Zeros(r, r);
+            for (int i = 1; i <= r; i++)
             {
                 array.PickValue(i, i) = (T)Convert.ChangeType(1, typeof(T));
             }
@@ -100,7 +100,7 @@ namespace CME
             T[] row = new T[Data.GetLength(1)];
             for (int i = 0; i < Data.GetLength(0); i++)
             {
-                row[i] = (T)Data.GetValue(r-1, i);
+                row[i] = (T)Data.GetValue(r - 1, i);
             }
             return row;
         }
@@ -115,7 +115,7 @@ namespace CME
             return row;
         }
 
-        public static Matrix<T> operator+ (Matrix<T> a,Matrix<T> b)
+        public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b)
         {
             int r, c;
             if (a.Data.GetLength(0) > b.Data.GetLength(0)) r = a.Data.GetLength(0);
@@ -123,9 +123,9 @@ namespace CME
             if (a.Data.GetLength(1) > b.Data.GetLength(1)) c = a.Data.GetLength(1);
             else c = b.Data.GetLength(1);
             Matrix<T> tmpa = new Matrix<T>(r, c);
-            for(int i=0; i < a.Data.GetLength(0); i++)
+            for (int i = 0; i < a.Data.GetLength(0); i++)
             {
-                for(int j=0; j< a.Data.GetLength(1); j++)
+                for (int j = 0; j < a.Data.GetLength(1); j++)
                 {
                     tmpa.Data[i, j] = a.Data[i, j];
                 }
@@ -243,7 +243,7 @@ namespace CME
 
         public static Matrix<T> operator *(Matrix<T> a, Matrix<T> b)
         {
-            if(a.Data.GetLength(1) == b.Data.GetLength(0))
+            if (a.Data.GetLength(1) == b.Data.GetLength(0))
             {
                 int ar = a.Data.GetLength(0);
                 int ac = a.Data.GetLength(1);
@@ -259,9 +259,9 @@ namespace CME
                         for (int j = 0; j < bc; j++)
                         {
                             double sum = 0.0;
-                            for (int k=0; k < ac; k++)
+                            for (int k = 0; k < ac; k++)
                             {
-                               sum += (double)(Object)a.PickValue(i + 1, k + 1) * (double)(Object)b.PickValue(k + 1, j + 1);
+                                sum += (double)(Object)a.PickValue(i + 1, k + 1) * (double)(Object)b.PickValue(k + 1, j + 1);
                             }
                             result.Data[i, j] = sum;
                         }
@@ -373,6 +373,164 @@ namespace CME
                 throw new Exception("It's not a square matrix!");
             }
         }
+        public static bool operator ==(Matrix<T> a, Matrix<T> b)
+        {
+            if (a.RowNumber == b.RowNumber)
+            {
+                if (a.ColumnNumber == b.ColumnNumber)
+                {
+                    for (int i = 0; i < a.RowNumber; i++)
+                    {
+                        for (int j = 0; j < a.ColumnNumber; j++)
+                        {
+                            if ((double)(Object)a.Data[i, j] != (double)(Object)b.Data[i, j])
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                else
+                    return false;
+            }
+            else
+            {
+                return false;
+            }
+            return true;
 
+        }
+        public static bool operator !=(Matrix<T> a, Matrix<T> b)
+        {
+            if (a.RowNumber == b.RowNumber)
+            {
+                if (a.ColumnNumber == b.ColumnNumber)
+                {
+                    for (int i = 0; i < a.RowNumber; i++)
+                    {
+                        for (int j = 0; j < a.ColumnNumber; j++)
+                        {
+                            if ((double)(Object)a.Data[i, j] != (double)(Object)b.Data[i, j])
+                                return true;
+                        }
+                    }
+                }
+                else
+                    return true;
+            }
+            else
+            {
+                return true;
+            }
+            return false;
+        }
+        public double Determinant()
+        {
+
+            if (RowNumber == 1)
+                return (double)(Object)Data[0, 0];
+            else if (RowNumber == 2)
+            {
+                return (double)(Object)Data[0, 0] * (double)(Object)Data[1, 1] - (double)(Object)Data[0, 1] * (double)(Object)Data[1, 0];
+            }
+            else if (RowNumber > 2)
+            {
+                double value = 0;
+                for (int j = 0; j < RowNumber; j++)
+                {
+                    Matrix<T> Tmp = CreateSmallerMatrix(0, j);
+                    value = value + (double)(Object)Data[0, j] * Math.Pow(-1, j) * Tmp.Determinant();
+                }
+                return value;
+            }
+
+            return 0;
+        }
+
+        public Matrix<T> CreateSmallerMatrix(int i, int j)
+        {
+            int Row = RowNumber - 1;
+            Matrix<T> output = new Matrix<T>(Row, Row);
+            int x = 0, y = 0;
+            for (int m = 0; m < RowNumber; m++, x++)
+            {
+                if (m != i)
+                {
+                    y = 0;
+                    for (int n = 0; n < RowNumber; n++)
+                    {
+                        if (n != j)
+                        {
+                            output.Data[x, y] = Data[m, n];
+                            y++;
+                        }
+                    }
+                }
+                else
+                    x--;
+            }
+            return output;
+        }
+
+        public Matrix<T> Transpose()
+        {
+            Matrix<T> result = new Matrix<T>(ColumnNumber, RowNumber);
+            for (int i = 0; i < ColumnNumber; i++)
+            {
+                for (int j = 0; j < RowNumber; j++)
+                {
+                    result.Data[i, j] = Data[j, i];
+                }
+            }
+            return result;
+        }
+
+        public Matrix<T> Complements()
+        {
+            Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
+            Matrix<T> tmp = new Matrix<T>(RowNumber - 1, ColumnNumber - 1);
+            for (int i = 0; i < RowNumber; i++)
+            {
+                for (int j = 0; j < ColumnNumber; j++)
+                {
+                    tmp = CreateSmallerMatrix(i, j);
+                    tmp2.Data[i, j] = Math.Pow(-1, i + j) * tmp.Determinant();
+                }
+            }
+            //for (int i = 0; i < RowNumber; i++)
+            //{
+            //    for (int j = 0; j < ColumnNumber; j++)
+            //    {
+            //        Console.WriteLine(tmp2[i, j]);
+            //    }
+            //}
+            return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
+        }
+
+        public Matrix<T> Inverse()
+        {
+            double det = Determinant();
+            Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
+            if (det == 0)
+            {
+                return this;
+            }
+            else
+            {
+                Matrix<T> tmp = new Matrix<T>(RowNumber, ColumnNumber);
+                tmp = this.Transpose();
+                // Write();
+                tmp = tmp.Complements();
+                // Write();
+                for (int i = 0; i < RowNumber; i++)
+                {
+                    for (int j = 0; j < ColumnNumber; j++)
+                    {
+                        tmp2.Data[i, j] = (1 / det) * (double)(Object)tmp.Data[i, j];
+                    }
+                }
+            }
+            return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
+        }
     }
 }
