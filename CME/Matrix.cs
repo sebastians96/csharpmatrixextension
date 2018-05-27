@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace csharpmatrixextension
+namespace CME
 {
     class Matrix<T> where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
     {
@@ -402,27 +402,9 @@ namespace csharpmatrixextension
         }
         public static bool operator !=(Matrix<T> a, Matrix<T> b)
         {
-            if (a.RowNumber == b.RowNumber)
-            {
-                if (a.ColumnNumber == b.ColumnNumber)
-                {
-                    for (int i = 0; i < a.RowNumber; i++)
-                    {
-                        for (int j = 0; j < a.ColumnNumber; j++)
-                        {
-                            if ((double)(Object)a.Data[i, j] != (double)(Object)b.Data[i, j])
-                                return true;
-                        }
-                    }
-                }
-                else
-                    return true;
-            }
-            else
-            {
-                return true;
-            }
-            return false;
+
+            return !(a == b);
+
         }
         public double Determinant()
         {
