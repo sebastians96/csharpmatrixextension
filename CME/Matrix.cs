@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,8 +45,10 @@ namespace CME
             }
         }
 
-        public void Write()
+        public string Write()
         {
+            var sw = new StringWriter();
+            Console.SetOut(sw);
             for (int i = 0; i < RowNumber; i++)
             {
                 for (int j = 0; j < ColumnNumber; j++)
@@ -57,6 +60,12 @@ namespace CME
                 }
                 Console.WriteLine();
             }
+            string result = sw.ToString().Trim('\r');
+            sw.Close();
+            StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
+            standardOutput.AutoFlush = true;
+            Console.SetOut(standardOutput);
+            return result;
         }
         /// <summary>
         /// Creates empty matrix filled with zeros.

@@ -5,14 +5,18 @@ using System.Text;
 
 namespace CME
 {
-    enum TokenType { Matrix, OpeningMatrixBracket, ClosingMatrixBracket, OpeningMathBracket, ClosingMathBracket, Integer, Float, MathematicalOperator, Comparator, Function, Unknown, Comma, Semicolon, Assign};
+    enum TokenType { Matrix, OpeningMatrixBracket, ClosingMatrixBracket, OpeningMathBracket, ClosingMathBracket, Integer, Float, MathematicalOperator, Comparator, Function, Unknown, Comma, Semicolon, Assign, Help};
 class Scanner
     {
-        Char[] Terminals = { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '(', ')', '[', ']', '+', '-', '*', '<', '>', '=', '!','.',',' };
+        Char[] Terminals = { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '(', ')', '[', ']', '+', '-', '*', '<', '>', '=', '!','.',',','?' };
         Char[] Separators = { '[', ']', '(', ')', ',', ';', '+', '-', '*', '=', '!', '>', '<' };
         String[] Comparators = { "==", "!=" };
         public KeyValuePair<TokenType,String> tokenize(ref String input)
         {
+            if(input.Equals(""))
+            {
+                input = ";";
+            }
             // Skips whitespaces 
             while(char.IsWhiteSpace (input[0]))
             {
@@ -66,8 +70,21 @@ class Scanner
                 input = input.Remove(0, 1);
                 return token;
             }
-                while (true)
+            else if (input[0].Equals('?'))
             {
+                type = TokenType.Help;
+                token = new KeyValuePair<TokenType, string>(type, input[0].ToString());
+                input = input.Remove(0, 1);
+                input = ";";
+                return token;
+            }
+            while (true)
+            {
+                if (input == "")
+                {
+                    String message = "Unexpected line ending: " + buff + "";
+                    throw new System.Exception(message);
+                }
                 s = input[0];
                 if( char.IsWhiteSpace(s) || Separators.Contains(s))
                 {
@@ -89,6 +106,7 @@ class Scanner
                 }
                 else
                 {
+
                     buff.Append(input[0]);
                     input = input.Remove(0, 1);
                 }

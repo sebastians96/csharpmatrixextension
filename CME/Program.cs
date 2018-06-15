@@ -14,18 +14,20 @@ namespace CME
             {
                 Console.Clear();
                 Console.WriteLine("Menu: \n 1. Scanner Demo \n 2. Parser Demo \n 3. Interpreter Demo \n 4. Quit");
-                Char c = (char)Console.Read();
+                Char c = '2';// (char)Console.ReadLine().First();
                 switch(c)
                 {
                     case '1':
                         ScannerDemo();
                         break;
                     case '2':
-                        while(true)
+                        Console.Clear();
+                        Parser p = new Parser();
+                        while (true)
                         {
-                            String input = Console.ReadLine();
+                            Console.Write("CME> ");
+                            String input = Console.ReadLine(); //"Transpose(Transpose([1 2 3]));";
                             if (input == "/q") break;
-                            Parser p = new Parser();
                             String result = p.parse(input);
                             Console.WriteLine(result);
                         }
