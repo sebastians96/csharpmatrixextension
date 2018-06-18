@@ -18,7 +18,7 @@ namespace CME
             tokens = new List<KeyValuePair<TokenType, string>>();
             result = new StringBuilder();
             variables.Add("m1", new Matrix<int>(new Matrix<int>(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3)));
-            variables.Add("m2", new Matrix<double>(new Matrix<double>(new double[] { 1.0, 2.0, 3.0, 4.0}, 2, 2)));
+            variables.Add("m2", new Matrix<double>(new Matrix<double>(new double[] { 1.0, 2.0, 3.0, 4.0 }, 2, 2)));
         }
         public dynamic parse(String input)
         {
@@ -27,13 +27,13 @@ namespace CME
             {
                 tokens.Add(scanner.tokenize(ref input));
             } while (tokens.Last().Key != TokenType.Semicolon);
-            return this.parse_req(tokens,0);
+            return this.parse_req(tokens, 0);
         }
-        public dynamic parse_req(List<KeyValuePair<TokenType, String>>  tokens, int level)
+        public dynamic parse_req(List<KeyValuePair<TokenType, String>> tokens, int level)
         {
             result.Clear();
-            int pointer = 0,current = 0;
-            while(tokens[pointer].Key != TokenType.Semicolon)
+            int pointer = 0, current = 0;
+            while (tokens[pointer].Key != TokenType.Semicolon)
             {
                 List<dynamic> arguments = new List<dynamic>();
                 dynamic m;
@@ -63,27 +63,34 @@ namespace CME
                                 Console.WriteLine("{0}", tmp);
                                 break;
                             case TokenType.Assign:
-                                if(!variables.ContainsKey(name))
+                                if (!variables.ContainsKey(name))
                                 {
                                     pointer++;
-                                    Matrix<int> data = ParseData(ref pointer, ref tokens);
-                                    result.Append(data.Write());
-                                    variables.Add(name, data);
-                                    pointer++;
-                                    break;
+                                    switch (tokens[pointer].Key)
+                                    {
+                                        case TokenType.Matrix:
+                                            break;
+                                        case TokenType.OpeningMatrixBracket:
+                                            Matrix<int> data = ParseData(ref pointer, ref tokens);
+                                            result.Append(data.Write());
+                                            variables.Add(name, data);
+                                            pointer++;
+                                            break;
+                                    }
                                 }
                                 else
                                 {
                                     return "Variable already exist!";
                                 }
-                            case TokenType.OpeningMatrixBracket:    
+                                    break;
+                            case TokenType.OpeningMatrixBracket:
                                 if (variables.ContainsKey(name))
                                 {
                                     pointer = pointer + 6;
                                     KeyValuePair<String, dynamic> matrix = new KeyValuePair<String, dynamic>(name, variables[name]);
                                     int first = Convert.ToInt32(tokens[pointer - 5].Value);
                                     int second = Convert.ToInt32(tokens[pointer - 2].Value);
-                                    if(first < matrix.Value.GetRows() && second < matrix.Value.GetCols())
+                                    if (first <= matrix.Value.GetRows() && second <= matrix.Value.GetCols())
                                         result.Append(matrix.Value.PickValue(first, second));
                                     else
                                     {
@@ -100,9 +107,9 @@ namespace CME
                     case TokenType.Function:
                         current = pointer;
                         pointer += 2;
-                        while(tokens[pointer].Key != TokenType.ClosingMathBracket)
+                        while (tokens[pointer].Key != TokenType.ClosingMathBracket)
                         {
-                            if(arguments.Count > 0) pointer++;
+                            if (arguments.Count > 0) pointer++;
                             switch (tokens[pointer].Key)
                             {
                                 case TokenType.Float:
@@ -154,14 +161,14 @@ namespace CME
                         switch (tokens[current].Value)
                         {
                             case "Zeros":
-                                if(arguments.Count > 1)
+                                if (arguments.Count > 1)
                                 {
                                     if (level == 0)
                                     {
-                                        result.Append(Matrix<int>.Zeros(arguments[0],arguments[1]).Write());
+                                        result.Append(Matrix<int>.Zeros(arguments[0], arguments[1]).Write());
                                         break;
                                     }
-                                    else return Matrix<int>.Zeros(arguments[0],arguments[1]);
+                                    else return Matrix<int>.Zeros(arguments[0], arguments[1]);
                                 }
                                 else
                                 {
@@ -187,7 +194,7 @@ namespace CME
                                     break;
                                 }
                                 else return m.Row(arguments[1]);
-                                
+
                             case "Col":
                                 m = arguments[0];
                                 if (level == 0)
@@ -240,7 +247,7 @@ namespace CME
                                     break;
                                 }
                                 else return arguments[0].Write();
-                                
+
                         }
                         pointer += 1;
                         break;
@@ -249,10 +256,10 @@ namespace CME
                         result.Append("###################### Help ######################");
                         //ToDo - write help section
                         break;
-                    //default:
-                    //    foreach (KeyValuePair<String, dynamic> entry in variables)
-                    //        result.Append(entry.Key);
-                    //    return result;
+                        //default:
+                        //    foreach (KeyValuePair<String, dynamic> entry in variables)
+                        //        result.Append(entry.Key);
+                        //    return result;
                 }
             }
 
@@ -273,9 +280,9 @@ namespace CME
             if (tokens[ptr].Key == TokenType.Integer)
             {
                 List<int> nums = new List<int>();
-                while(tokens[ptr].Key != TokenType.ClosingMatrixBracket)
+                while (tokens[ptr].Key != TokenType.ClosingMatrixBracket)
                 {
-                    if(tokens[ptr].Key == TokenType.Integer)
+                    if (tokens[ptr].Key == TokenType.Integer)
                     {
                         nums.Add(Int32.Parse(tokens[ptr].Value));
                     }
@@ -308,7 +315,7 @@ namespace CME
             {
                 throw new System.Exception("Incorrect data after matrix bracket!");
             }
-            
+
             return result;
         }
     }
