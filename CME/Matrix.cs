@@ -103,7 +103,7 @@ namespace CME
             Matrix<T> array = Matrix<T>.Zeros(r, r);
             for (int i = 0; i < r; i++)
             {
-                array.Data[i,i] = (T)Convert.ChangeType(1, typeof(T));
+                array.Data[i, i] = (T)Convert.ChangeType(1, typeof(T));
             }
             return array;
         }
@@ -120,7 +120,7 @@ namespace CME
             {
                 row[i] = (T)Data.GetValue(r - 1, i);
             }
-            return new Matrix<T>(row,1,row.Count());
+            return new Matrix<T>(row, 1, row.Count());
         }
 
         public Matrix<T> Column(int c)
@@ -130,7 +130,7 @@ namespace CME
             {
                 col[i] = (T)Data.GetValue(i, c - 1);
             }
-            return new Matrix<T>(col, col.Count(),1);
+            return new Matrix<T>(col, col.Count(), 1);
         }
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b)
@@ -393,29 +393,88 @@ namespace CME
         }
         public static bool operator ==(Matrix<T> a, Matrix<T> b)
         {
-            if (a.RowNumber == b.RowNumber)
+            double[,] d = new double[1, 1];
+            float[,] f = new float[1, 1];
+            if (a.Data.GetType() == d.GetType())
             {
-                if (a.ColumnNumber == b.ColumnNumber)
+                if (a.RowNumber == b.RowNumber)
                 {
-                    for (int i = 0; i < a.RowNumber; i++)
+                    if (a.ColumnNumber == b.ColumnNumber)
                     {
-                        for (int j = 0; j < a.ColumnNumber; j++)
+                        for (int i = 0; i < a.RowNumber; i++)
                         {
-                            if ((int)(Object)a.Data[i, j] != (int)(Object)b.Data[i, j])
+                            for (int j = 0; j < a.ColumnNumber; j++)
                             {
-                                return false;
+                                if ((double)(Object)a.Data[i, j] != (double)(Object)b.Data[i, j])
+                                {
+                                    return false;
+                                }
                             }
                         }
                     }
+                    else
+                        return false;
                 }
                 else
+                {
                     return false;
+                }
+            return true;
+            }
+            else if (a.Data.GetType() == f.GetType())
+            {
+                if (a.RowNumber == b.RowNumber)
+                {
+                    if (a.ColumnNumber == b.ColumnNumber)
+                    {
+                        for (int i = 0; i < a.RowNumber; i++)
+                        {
+                            for (int j = 0; j < a.ColumnNumber; j++)
+                            {
+                                if ((float)(Object)a.Data[i, j] != (float)(Object)b.Data[i, j])
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                        return false;
+                }
+                else
+                {
+                    return false;
+                }
+            return true;
             }
             else
             {
-                return false;
+                Console.WriteLine("INT");
+                if (a.RowNumber == b.RowNumber)
+                {
+                    if (a.ColumnNumber == b.ColumnNumber)
+                    {
+                        for (int i = 0; i < a.RowNumber; i++)
+                        {
+                            for (int j = 0; j < a.ColumnNumber; j++)
+                            {
+                                if ((Object)a.Data[i, j] != (Object)b.Data[i, j])
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                        return false;
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
             }
-            return true;
+
 
         }
         public static bool operator !=(Matrix<T> a, Matrix<T> b)
@@ -424,27 +483,80 @@ namespace CME
             return !(a == b);
 
         }
-        public double Determinant()
+        public T Determinant()
         {
+            double dzero = 0;
+            float fzero = 0;
+            int izero = 0;
+            double[,] d = new double[1, 1];
+            float[,] f = new float[1, 1];
+            if (Data.GetType() == d.GetType())
+            {
 
-            if (RowNumber == 1)
-                return (double)(Object)Data[0, 0];
-            else if (RowNumber == 2)
-            {
-                return (double)(Object)Data[0, 0] * (double)(Object)Data[1, 1] - (double)(Object)Data[0, 1] * (double)(Object)Data[1, 0];
-            }
-            else if (RowNumber > 2)
-            {
-                double value = 0;
-                for (int j = 0; j < RowNumber; j++)
+                if (RowNumber == 1)
+                    return (T)Convert.ChangeType(Data[0, 0], typeof(double));
+                else if (RowNumber == 2)
                 {
-                    Matrix<T> Tmp = CreateSmallerMatrix(0, j);
-                    value = value + (double)(Object)Data[0, j] * Math.Pow(-1, j) * Tmp.Determinant();
+                    double tmp = (double)(Object)Data[0, 0] * (double)(Object)Data[1, 1] - (double)(Object)Data[0, 1] * (double)(Object)Data[1, 0];
+                    return (T)Convert.ChangeType(tmp, typeof(double));
                 }
-                return value;
-            }
+                else if (RowNumber > 2)
+                {
+                    double value = 0;
+                    for (int j = 0; j < RowNumber; j++)
+                    {
+                        Matrix<T> Tmp = CreateSmallerMatrix(0, j);
+                        value = value + (double)(Object)Data[0, j] * (double)Math.Pow(-1, j) * (double)(Object)Tmp.Determinant();
+                    }
+                    return (T)Convert.ChangeType(value, typeof(double));
+                }
 
-            return 0;
+                return (T)Convert.ChangeType(dzero, typeof(double));
+            }
+            else if ( Data.GetType() == f.GetType())
+            {
+                if (RowNumber == 1)
+                    return (T)Convert.ChangeType(Data[0, 0], typeof(float));
+                else if (RowNumber == 2)
+                {
+                    float tmp = (float)(Object)Data[0, 0] * (float)(Object)Data[1, 1] - (float)(Object)Data[0, 1] * (float)(Object)Data[1, 0];
+                    return (T)Convert.ChangeType(tmp, typeof(float));
+                }
+                else if (RowNumber > 2)
+                {
+                    float value = 0;
+                    for (int j = 0; j < RowNumber; j++)
+                    {
+                        Matrix<T> Tmp = CreateSmallerMatrix(0, j);
+                        value = value + (float)(Object)Data[0, j] * (float)Math.Pow(-1, j) * (float)(Object)Tmp.Determinant();
+                    }
+                    return (T)Convert.ChangeType(value, typeof(float));
+                }
+
+                return (T)Convert.ChangeType(fzero, typeof(float));
+            }
+            else
+            {
+                if (RowNumber == 1)
+                    return (T)Convert.ChangeType(Data[0, 0], typeof(int));
+                else if (RowNumber == 2)
+                {
+                    int tmp = (int)(Object)Data[0, 0] * (int)(Object)Data[1, 1] - (int)(Object)Data[0, 1] * (int)(Object)Data[1, 0];
+                    return (T)Convert.ChangeType(tmp, typeof(int));
+                }
+                else if (RowNumber > 2)
+                {
+                    int value = 0;
+                    for (int j = 0; j < RowNumber; j++)
+                    {
+                        Matrix<T> Tmp = CreateSmallerMatrix(0, j);
+                        value = value + (int)(Object)Data[0, j] * (int)Math.Pow(-1, j) * (int)(Object)Tmp.Determinant();
+                    }
+                    return (T)Convert.ChangeType(value, typeof(int));
+                }
+
+                return (T)Convert.ChangeType(izero, typeof(int));
+            }
         }
 
         public Matrix<T> CreateSmallerMatrix(int i, int j)
@@ -487,50 +599,131 @@ namespace CME
 
         public Matrix<T> Complements()
         {
-            Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
-            Matrix<T> tmp = new Matrix<T>(RowNumber - 1, ColumnNumber - 1);
-            for (int i = 0; i < RowNumber; i++)
+            double[,] d = new double[1, 1];
+            float[,] f = new float[1, 1];
+            if (Data.GetType() == d.GetType())
             {
-                for (int j = 0; j < ColumnNumber; j++)
-                {
-                    tmp = CreateSmallerMatrix(i, j);
-                    tmp2.Data[i, j] = Math.Pow(-1, i + j) * tmp.Determinant();
-                }
-            }
-            //for (int i = 0; i < RowNumber; i++)
-            //{
-            //    for (int j = 0; j < ColumnNumber; j++)
-            //    {
-            //        Console.WriteLine(tmp2[i, j]);
-            //    }
-            //}
-            return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
-        }
-
-        public Matrix<T> Inverse()
-        {
-            double det = Determinant();
-            Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
-            if (det == 0)
-            {
-                return this;
-            }
-            else
-            {
-                Matrix<T> tmp = new Matrix<T>(RowNumber, ColumnNumber);
-                tmp = this.Transpose();
-                // Write();
-                tmp = tmp.Complements();
-                // Write();
+                Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
+                Matrix<T> tmp = new Matrix<T>(RowNumber - 1, ColumnNumber - 1);
                 for (int i = 0; i < RowNumber; i++)
                 {
                     for (int j = 0; j < ColumnNumber; j++)
                     {
-                        tmp2.Data[i, j] = (1 / det) * (double)(Object)tmp.Data[i, j];
+                        tmp = CreateSmallerMatrix(i, j);
+                        tmp2.Data[i, j] = Math.Pow(-1, i + j) * (double)(Object)tmp.Determinant();
                     }
                 }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
             }
-            return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
+            else if ( Data.GetType() == f.GetType())
+            {
+                Matrix<float> tmp2 = new Matrix<float>(RowNumber, ColumnNumber);
+                Matrix<T> tmp = new Matrix<T>(RowNumber - 1, ColumnNumber - 1);
+                for (int i = 0; i < RowNumber; i++)
+                {
+                    for (int j = 0; j < ColumnNumber; j++)
+                    {
+                        tmp = CreateSmallerMatrix(i, j);
+                        tmp2.Data[i, j] = (float)Math.Pow(-1, i + j) * (float)(Object)tmp.Determinant();
+                    }
+                }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<float>));
+            }
+            else
+            {
+                Matrix<int> tmp2 = new Matrix<int>(RowNumber, ColumnNumber);
+                Matrix<T> tmp = new Matrix<T>(RowNumber - 1, ColumnNumber - 1);
+                for (int i = 0; i < RowNumber; i++)
+                {
+                    for (int j = 0; j < ColumnNumber; j++)
+                    {
+                        tmp = CreateSmallerMatrix(i, j);
+                        tmp2.Data[i, j] = (int)Math.Pow(-1, i + j) * (int)(Object)tmp.Determinant();
+                    }
+                }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<int>));
+            }
+        }
+
+        public Matrix<T> Inverse()
+        {
+            double[,] d = new double[1, 1];
+            float[,] f = new float[1, 1];
+            if (Data.GetType() == d.GetType())
+            {
+                double det = (double)(Object)Determinant();
+                Matrix<double> tmp2 = new Matrix<double>(RowNumber, ColumnNumber);
+                if (det == 0)
+                {
+                    return this;
+                }
+                else
+                {
+                    Matrix<T> tmp = new Matrix<T>(RowNumber, ColumnNumber);
+                    tmp = this.Transpose();
+                    // Write();
+                    tmp = tmp.Complements();
+                    // Write();
+                    for (int i = 0; i < RowNumber; i++)
+                    {
+                        for (int j = 0; j < ColumnNumber; j++)
+                        {
+                            tmp2.Data[i, j] = (1 / det) * (double)(Object)tmp.Data[i, j];
+                        }
+                    }
+                }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<double>));
+            }
+            else if (Data.GetType() == f.GetType())
+            {
+                float det = (float)(Object)Determinant();
+                Matrix<float> tmp2 = new Matrix<float>(RowNumber, ColumnNumber);
+                if (det == 0)
+                {
+                    return this;
+                }
+                else
+                {
+                    Matrix<T> tmp = new Matrix<T>(RowNumber, ColumnNumber);
+                    tmp = this.Transpose();
+                    // Write();
+                    tmp = tmp.Complements();
+                    // Write();
+                    for (int i = 0; i < RowNumber; i++)
+                    {
+                        for (int j = 0; j < ColumnNumber; j++)
+                        {
+                            tmp2.Data[i, j] = (1 / det) * (float)(Object)tmp.Data[i, j];
+                        }
+                    }
+                }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<float>));
+            }
+            else
+            {
+                int det = (int)(Object)Determinant();
+                Matrix<int> tmp2 = new Matrix<int>(RowNumber, ColumnNumber);
+                if (det == 0)
+                {
+                    return this;
+                }
+                else
+                {
+                    Matrix<T> tmp = new Matrix<T>(RowNumber, ColumnNumber);
+                    tmp = this.Transpose();
+                    // Write();
+                    tmp = tmp.Complements();
+                    // Write();
+                    for (int i = 0; i < RowNumber; i++)
+                    {
+                        for (int j = 0; j < ColumnNumber; j++)
+                        {
+                            tmp2.Data[i, j] = (1 / det) * (int)(Object)tmp.Data[i, j];
+                        }
+                    }
+                }
+                return (Matrix<T>)Convert.ChangeType(tmp2, typeof(Matrix<int>));
+            }
         }
     }
 }
