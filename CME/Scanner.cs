@@ -10,7 +10,7 @@ class Scanner
     {
         Char[] Terminals = { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '(', ')', '[', ']', '+', '-', '*', '<', '>', '=', '!','.',',','?' };
         Char[] Separators = { '[', ']', '(', ')', ',', ';', '+', '-', '*', '=', '!', '>', '<' };
-        String[] Comparators = { "==", "!=" };
+        Char[] Comparators = { '=', '!'};
         public KeyValuePair<TokenType,String> tokenize(ref String input)
         {
             if(input.Equals(""))
@@ -26,9 +26,10 @@ class Scanner
             Char s;
             TokenType type = TokenType.Unknown;
             KeyValuePair<TokenType, String> token;
-            if (Comparators.Contains(input.Take(2)))
+            if (Comparators.Contains(input[0]) && Comparators.Contains(input[1]))
             {
-                token = new KeyValuePair<TokenType, string>(TokenType.Comparator, (string)input.Take(2));
+                String tmp = Char.ToString(input[0]) + Char.ToString(input[1]);
+                token = new KeyValuePair<TokenType, string>(TokenType.Comparator, tmp);
                 input = input.Remove(0, 2);
                 return token;
             }

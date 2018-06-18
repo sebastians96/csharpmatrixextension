@@ -40,7 +40,45 @@ namespace CME
                 switch (tokens[pointer].Key)
                 {
                     case TokenType.Matrix:
-                        // Assign, compare etc.
+                        String name = tokens[pointer].Value;
+                        pointer++;
+                        switch (tokens[pointer].Key)
+                        {
+                            case TokenType.Comparator:
+                                Boolean tmp = false;
+                                KeyValuePair<String, dynamic> tmp1 = variables.FirstOrDefault(t => t.Key == tokens[pointer - 1].Value);
+                                KeyValuePair<String, dynamic> tmp2 = variables.FirstOrDefault(t => t.Key == tokens[pointer + 1].Value);
+                                switch (tokens[pointer].Value)
+                                {
+                                    case "==":
+                                        pointer++;
+                                        tmp = tmp1.Value == tmp2.Value;
+                                        break;
+                                    case "!=":
+                                        pointer++;
+                                        tmp = tmp1.Value != tmp2.Value;
+                                        break;
+
+                                }
+                                Console.WriteLine("{0}", tmp);
+                                break;
+                            case TokenType.Assign:
+                                pointer++;
+                                Matrix<int> data = ParseData(ref pointer, ref tokens);
+                                result.Append(data.Write());
+                                variables.Add(name, data);
+                                break;
+                            case TokenType.OpeningMatrixBracket:            // M1[1][2];
+                                pointer = pointer + 6;
+                                KeyValuePair<String, dynamic> matrix = variables.FirstOrDefault(t => t.Key == tokens[pointer - 7].Value);
+                                Console.WriteLine("{0} , {1} , {2}", tokens[pointer - 5].Value, tokens[pointer - 2].Value, matrix.Key);
+                                int first = Convert.ToInt32(tokens[pointer - 5].Value);
+                                int second = Convert.ToInt32(tokens[pointer - 2].Value);
+                                dynamic value = (Object)matrix.Value.PickValue(first, second);
+                                Console.WriteLine("{0}", value);
+                                result.Append(matrix.Value.PickValue(first, second));
+                                break;
+                        }
                         break;
                     case TokenType.Function:
                         current = pointer;
@@ -195,7 +233,9 @@ namespace CME
                         //ToDo - write help section
                         break;
                     default:
-                        return "Error, please write correct query!";
+                        foreach (KeyValuePair<String, dynamic> entry in variables)
+                            Console.WriteLine(entry.Key);
+                        return "default";
                 }
             }
 

@@ -392,7 +392,7 @@ namespace CME
                     {
                         for (int j = 0; j < a.ColumnNumber; j++)
                         {
-                            if ((double)(Object)a.Data[i, j] != (double)(Object)b.Data[i, j])
+                            if ((int)(Object)a.Data[i, j] != (int)(Object)b.Data[i, j])
                             {
                                 return false;
                             }
