@@ -66,10 +66,12 @@ namespace CME
                                 if(!variables.ContainsKey(name))
                                 {
                                     pointer++;
-                                    Matrix<int> data = ParseData(ref pointer, ref tokens);
+                                    Parser p = new Parser();
+                                    dynamic data = p.parse_req(tokens.Skip(pointer).ToList(), level + 1);
+                                    //Matrix<int> data = ParseData(ref pointer, ref tokens);
                                     result.Append(data.Write());
                                     variables.Add(name, data);
-                                    pointer++;
+                                    pointer = tokens.Count() - 1;
                                     break;
                                 }
                                 else
@@ -83,7 +85,7 @@ namespace CME
                                     KeyValuePair<String, dynamic> matrix = new KeyValuePair<String, dynamic>(name, variables[name]);
                                     int first = Convert.ToInt32(tokens[pointer - 5].Value);
                                     int second = Convert.ToInt32(tokens[pointer - 2].Value);
-                                    if(first < matrix.Value.GetRows() && second < matrix.Value.GetCols())
+                                    if(first - 1 < matrix.Value.GetRows() && second - 1 < matrix.Value.GetCols())
                                         result.Append(matrix.Value.PickValue(first, second));
                                     else
                                     {
@@ -96,6 +98,17 @@ namespace CME
                                     return "Variable doesnt exist!";
                                 }
                         }
+                        break;
+                    case TokenType.OpeningMatrixBracket:
+                        if (level > 0)
+                        {
+                            return this.ParseData(ref pointer, ref tokens);
+                        }
+                        else
+                        {
+                            result.Append(this.ParseData(ref pointer, ref tokens).Write());
+                        }
+                        pointer++;
                         break;
                     case TokenType.Function:
                         current = pointer;
