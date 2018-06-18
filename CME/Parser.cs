@@ -17,6 +17,8 @@ namespace CME
             scanner = new Scanner();
             tokens = new List<KeyValuePair<TokenType, string>>();
             result = new StringBuilder();
+            variables.Add("m1", new Matrix<int>(new Matrix<int>(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3)));
+            variables.Add("m2", new Matrix<double>(new Matrix<double>(new double[] { 1.0, 2.0, 3.0, 4.0}, 2, 2)));
         }
         public dynamic parse(String input)
         {
@@ -33,32 +35,51 @@ namespace CME
             int pointer = 0,current = 0;
             while(tokens[pointer].Key != TokenType.Semicolon)
             {
+                List<dynamic> arguments = new List<dynamic>();
+                dynamic m;
                 switch (tokens[pointer].Key)
                 {
                     case TokenType.Matrix:
                         // Assign, compare etc.
                         break;
                     case TokenType.Function:
-                        dynamic arg;
                         current = pointer;
                         pointer += 2;
-                        switch (tokens[pointer].Key)
+                        while(tokens[pointer].Key != TokenType.ClosingMathBracket)
                         {
-                            case TokenType.Matrix:
-                                variables.TryGetValue(tokens[pointer].Value, out arg);
-                                break;
-                            case TokenType.OpeningMatrixBracket:
-                                arg = this.ParseData(ref pointer, ref tokens);
-                                pointer++;
-                                break;
-                            case TokenType.Function:
-                                // funkcja zagnieżdżona
-                                Parser p = new Parser();
-                                List<KeyValuePair<TokenType, String>> tmp = new List<KeyValuePair<TokenType, string>>();
-                                int check = 0;
-                                while(!(tokens[pointer].Key == TokenType.ClosingMathBracket && check == 0))
-                                {
-                                    switch(tokens[pointer].Key)
+                            if(arguments.Count > 0) pointer++;
+                            switch (tokens[pointer].Key)
+                            {
+                                case TokenType.Float:
+                                    arguments.Add(float.Parse(tokens[pointer].Value));
+                                    pointer++;
+                                    break;
+                                case TokenType.Integer:
+                                    arguments.Add(Int32.Parse(tokens[pointer].Value));
+                                    pointer++;
+                                    break;
+                                case TokenType.Matrix:
+                                    if (variables.ContainsKey(tokens[pointer].Value))
+                                    {
+                                        arguments.Add(variables[tokens[pointer].Value]);
+                                        pointer++;
+                                    }
+                                    else return "Matrix does not exist!";
+                                    //variables.TryGetValue(tokens[pointer].Value, out arguments);
+
+                                    break;
+                                case TokenType.OpeningMatrixBracket:
+                                    arguments.Add(this.ParseData(ref pointer, ref tokens));
+                                    pointer++;
+                                    break;
+                                case TokenType.Function:
+                                    // funkcja zagnieżdżona
+                                    Parser p = new Parser();
+                                    List<KeyValuePair<TokenType, String>> tmp = new List<KeyValuePair<TokenType, string>>();
+                                    int check = 0;
+                                    while (!(tokens[pointer].Key == TokenType.ClosingMathBracket && check == 0))
+                                    {
+                                        switch (tokens[pointer].Key)
                                         {
                                             case TokenType.Function:
                                                 check++;
@@ -67,71 +88,103 @@ namespace CME
                                                 check--;
                                                 break;
                                         }
-                                    tmp.Add(tokens[pointer++]);
-                                }
-                                arg = p.parse_req(tmp, level + 1);
-                                break;
-                            default:
-                                throw new System.Exception("Error: Bad function argument!");
+                                        tmp.Add(tokens[pointer++]);
+                                    }
+                                    arguments.Add(p.parse_req(tmp, level + 1));
+                                    break;
+                                default:
+                                    throw new System.Exception("Error: Bad function argument!");
+                            }
                         }
                         switch (tokens[current].Value)
                         {
                             case "Zeros":
-                                // Zeros function
-
-                                break;
-                            case "Identity":
-                                // Identity function
-                                break;
-                            case "PickValue":
-                            case "Pickvalue":
-                                // Pick Value function
-                                break;
-                            case "Row":
-                                // Row function
-                                break;
-                            case "Column":
-                                // Column function
-                                break;
-                            case "Power":
-                                // Power function
-                                break;
-                            case "Determinant":
+                                if(arguments.Count > 1)
+                                {
+                                    if (level == 0)
+                                    {
+                                        result.Append(Matrix<int>.Zeros(arguments[0],arguments[1]).Write());
+                                        break;
+                                    }
+                                    else return Matrix<int>.Zeros(arguments[0],arguments[1]);
+                                }
+                                else
+                                {
+                                    if (level == 0)
+                                    {
+                                        result.Append(Matrix<int>.Zeros(arguments[0]).Write());
+                                        break;
+                                    }
+                                    else return Matrix<int>.Zeros(arguments[0]);
+                                }
+                            case "Diagonal":
                                 if (level == 0)
                                 {
-                                    result.Append(arg.Determinant().ToString());
+                                    result.Append(Matrix<int>.Identity(arguments[0]).Write());
                                     break;
                                 }
-                                else return arg.Determinant();
+                                else return Matrix<int>.Identity(arguments[0]);
+                            case "Row":
+                                m = arguments[0];
+                                if (level == 0)
+                                {
+                                    result.Append(m.Row(arguments[1]).Write());
+                                    break;
+                                }
+                                else return m.Row(arguments[1]);
+                                
+                            case "Col":
+                                m = arguments[0];
+                                if (level == 0)
+                                {
+                                    result.Append(m.Column(arguments[1]).Write());
+                                    break;
+                                }
+                                else return m.Column(arguments[1]);
+                            case "Pow":
+                                m = arguments[0];
+                                if (level == 0)
+                                {
+                                    result.Append(m.Power(arguments[1]).Write());
+                                    break;
+                                }
+                                else return m.Power(arguments[1]);
+                            case "Det":
+                                if (level == 0)
+                                {
+                                    result.Append(arguments[0].Determinant().ToString());
+                                    break;
+                                }
+                                else return arguments[0].Determinant();
                             case "Transpose":
                                 if (level == 0)
                                 {
-                                    result.Append(arg.Transpose().Write());
+                                    result.Append(arguments[0].Transpose().Write());
                                     break;
                                 }
-                                else return arg.Transpose();
+                                else return arguments[0].Transpose();
                             case "ComplementsMatrix":
                             case "Complementsmatrix":
                                 if (level == 0)
                                 {
-                                    result.Append(arg.Complements().Write());
+                                    result.Append(arguments[0].Complements().Write());
                                     break;
                                 }
-                                else return arg.Complements();
+                                else return arguments[0].Complements();
                             case "Inverse":
                                 if (level == 0)
                                 {
-                                    result.Append(arg.Inverse().Write());
+                                    result.Append(arguments[0].Inverse().Write());
                                     break;
                                 }
-                                else return arg.Inverse();
+                                else return arguments[0].Inverse();
                             case "Write":
                                 if (level == 0)
                                 {
-                                    result.Append(arg.Write());
+                                    result.Append(arguments[0].Write());
                                     break;
                                 }
-                                else return arg.Write();
+                                else return arguments[0].Write();
                                 
                         }
                         pointer += 1;

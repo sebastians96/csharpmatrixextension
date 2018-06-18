@@ -104,24 +104,24 @@ namespace CME
             return ref this.Data[r - 1, c - 1];
         }
 
-        public T[] Row(int r)
+        public Matrix<T> Row(int r)
         {
             T[] row = new T[Data.GetLength(1)];
             for (int i = 0; i < Data.GetLength(0); i++)
             {
                 row[i] = (T)Data.GetValue(r - 1, i);
             }
-            return row;
+            return new Matrix<T>(row,1,row.Count());
         }
 
-        public T[] Column(int c)
+        public Matrix<T> Column(int c)
         {
-            T[] row = new T[Data.GetLength(0)];
+            T[] col = new T[Data.GetLength(0)];
             for (int i = 0; i < Data.GetLength(1); i++)
             {
-                row[i] = (T)Data.GetValue(i, c - 1);
+                col[i] = (T)Data.GetValue(i, c - 1);
             }
-            return row;
+            return new Matrix<T>(col, col.Count(),1);
         }
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b)
