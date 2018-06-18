@@ -9,8 +9,8 @@ namespace CME
 {
     class Matrix<T> where T : struct, IComparable, IComparable<T>, IConvertible, IEquatable<T>, IFormattable
     {
-        int RowNumber { get; }
-        int ColumnNumber { get; }
+        int RowNumber;
+        int ColumnNumber;
         T[,] Data { get; set; }
         public Matrix(Matrix<T> m)
         {
@@ -43,6 +43,15 @@ namespace CME
                     Data[i, j] = input[i * c + j];
                 }
             }
+        }
+
+        public int GetRows()
+        {
+            return RowNumber;
+        }
+        public int GetCols()
+        {
+            return ColumnNumber;
         }
 
         public string Write()
@@ -92,16 +101,16 @@ namespace CME
         public static Matrix<T> Identity(int r)
         {
             Matrix<T> array = Matrix<T>.Zeros(r, r);
-            for (int i = 1; i <= r; i++)
+            for (int i = 0; i < r; i++)
             {
-                array.PickValue(i, i) = (T)Convert.ChangeType(1, typeof(T));
+                array.Data[i,i] = (T)Convert.ChangeType(1, typeof(T));
             }
             return array;
         }
 
-        public ref T PickValue(int r, int c)
+        public T PickValue(int r, int c)
         {
-            return ref this.Data[r - 1, c - 1];
+            return this.Data[r - 1, c - 1];
         }
 
         public Matrix<T> Row(int r)

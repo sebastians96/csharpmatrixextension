@@ -63,21 +63,38 @@ namespace CME
                                 Console.WriteLine("{0}", tmp);
                                 break;
                             case TokenType.Assign:
-                                pointer++;
-                                Matrix<int> data = ParseData(ref pointer, ref tokens);
-                                result.Append(data.Write());
-                                variables.Add(name, data);
-                                break;
-                            case TokenType.OpeningMatrixBracket:            // M1[1][2];
-                                pointer = pointer + 6;
-                                KeyValuePair<String, dynamic> matrix = variables.FirstOrDefault(t => t.Key == tokens[pointer - 7].Value);
-                                Console.WriteLine("{0} , {1} , {2}", tokens[pointer - 5].Value, tokens[pointer - 2].Value, matrix.Key);
-                                int first = Convert.ToInt32(tokens[pointer - 5].Value);
-                                int second = Convert.ToInt32(tokens[pointer - 2].Value);
-                                dynamic value = (Object)matrix.Value.PickValue(first, second);
-                                Console.WriteLine("{0}", value);
-                                result.Append(matrix.Value.PickValue(first, second));
-                                break;
+                                if(!variables.ContainsKey(name))
+                                {
+                                    pointer++;
+                                    Matrix<int> data = ParseData(ref pointer, ref tokens);
+                                    result.Append(data.Write());
+                                    variables.Add(name, data);
+                                    pointer++;
+                                    break;
+                                }
+                                else
+                                {
+                                    return "Variable already exist!";
+                                }
+                            case TokenType.OpeningMatrixBracket:    
+                                if (variables.ContainsKey(name))
+                                {
+                                    pointer = pointer + 6;
+                                    KeyValuePair<String, dynamic> matrix = new KeyValuePair<String, dynamic>(name, variables[name]);
+                                    int first = Convert.ToInt32(tokens[pointer - 5].Value);
+                                    int second = Convert.ToInt32(tokens[pointer - 2].Value);
+                                    if(first < matrix.Value.GetRows() && second < matrix.Value.GetCols())
+                                        result.Append(matrix.Value.PickValue(first, second));
+                                    else
+                                    {
+                                        result.Append("Out of bound exception!");
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    return "Variable doesnt exist!";
+                                }
                         }
                         break;
                     case TokenType.Function:
@@ -232,10 +249,10 @@ namespace CME
                         result.Append("###################### Help ######################");
                         //ToDo - write help section
                         break;
-                    default:
-                        foreach (KeyValuePair<String, dynamic> entry in variables)
-                            Console.WriteLine(entry.Key);
-                        return "default";
+                    //default:
+                    //    foreach (KeyValuePair<String, dynamic> entry in variables)
+                    //        result.Append(entry.Key);
+                    //    return result;
                 }
             }
 
