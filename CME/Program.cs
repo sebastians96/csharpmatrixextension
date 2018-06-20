@@ -10,7 +10,7 @@ namespace CME
     {
         static void Main(string[] args)
         {
-            while(true)
+            while (true)
             {
                 //Matrix<double> x = new Matrix<double>(new double[] { 1.0, 2.0, 3.0, 4.0 }, 2, 2);
                 //Matrix<int> y = new Matrix<int>(new int[] { 1, 2, 3, 4 }, 2, 2);
@@ -18,7 +18,8 @@ namespace CME
                 Console.Clear();
                 Console.WriteLine("Menu: \n 1. Scanner Demo \n 2. Parser Demo \n 3. Interpreter Demo \n 4. Quit");
                 Char c = '2';// (char)Console.ReadLine().First();
-                switch(c)
+                //Char c = (char)Console.ReadLine().First();
+                switch (c)
                 {
                     case '1':
                         ScannerDemo();

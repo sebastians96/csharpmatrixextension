@@ -30,6 +30,7 @@ namespace CME
 
         public dynamic Parse_operator_layer(List<KeyValuePair<TokenType, String>> tokens)
         {
+            Matrix<int> j = new Matrix<int>(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3);
             dynamic result, right;
             bool assign = false;
             string varName = "";
@@ -49,7 +50,7 @@ namespace CME
             Parser p = new Parser();
             result = p.parse_req(leftSide, 1);
 
-            while(tokens[ptr].Key != TokenType.Semicolon)
+            while (tokens[ptr].Key != TokenType.Semicolon)
             {
                 mathematicalOperator = tokens[ptr++].Value;
 
@@ -73,17 +74,26 @@ namespace CME
                     result = result * right;
                 }
             }
-            
+
             if (assign && varName != "")
             {
-                if( variables.ContainsKey(varName))
+                if (variables.ContainsKey(varName))
                 {
                     variables.Remove(varName);
                 }
                 variables.Add(varName, result);
             }
-            return result.Write();          
+            try
+            {
+                return result.Write();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(result);
+                return null;
+            }
         }
+
 
         public dynamic parse_req(List<KeyValuePair<TokenType, String>> tokens, int level)
         {
@@ -126,7 +136,7 @@ namespace CME
                                     dynamic data = p.parse_req(tokens.Skip(pointer).ToList(), level + 1);
                                     variables.Add(name, data);
                                     pointer = tokens.Count() - 1;
-                                    if(level > 0)
+                                    if (level > 0)
                                     {
                                         return data;
                                     }
@@ -147,7 +157,7 @@ namespace CME
                                     KeyValuePair<String, dynamic> matrix = new KeyValuePair<String, dynamic>(name, variables[name]);
                                     int first = Convert.ToInt32(tokens[pointer - 5].Value);
                                     int second = Convert.ToInt32(tokens[pointer - 2].Value);
-                                    if(first - 1 < matrix.Value.GetRows() && second - 1 < matrix.Value.GetCols())
+                                    if (first - 1 < matrix.Value.GetRows() && second - 1 < matrix.Value.GetCols())
                                         result.Append(matrix.Value.PickValue(first, second));
                                     else
                                     {
@@ -321,9 +331,22 @@ namespace CME
                         break;
                     case TokenType.Help:
                         // Write list of functions - help page.
-                        result.Append("###################### Help ######################");
-                        //ToDo - write help section
-                        break;
+                        result.Append("###################### Help ######################\n");
+                        result.Append("m1 = [1 2 3, 4 5 6, 7 8 9]; - przykladowa deklaracja macierzy\n");
+                        result.Append("m2 = Diagonal(n); - macierz kwadratowa o wymiarze n z jedynkami na przekątnej\n");
+                        result.Append("m3 = Zeros(n); - macierz kwadratowa o wymiarze n z samymi zerami\n");
+                        result.Append("m4 = M4 = Zeros(n,m); - macierz o wymiarach n na m z samymi zerami\n");
+                        result.Append("m1 +/-/* m2 - operacje matematyczne\n");
+                        result.Append("Col(m1,n) - wyciagnij kolumne n z macierzy m1\n");
+                        result.Append("Row(m1,n) - wyciagnij rząd n z macierzy m1\n");
+                        result.Append("Inv(m1) - odwróć macierz m1\n");
+                        result.Append("Pow(m1, n) - podnieś macierz m1 do potęgi n\n");
+                        result.Append("Det(m1) - oblicz wyznacznik macierzy m1\n");
+                        result.Append("Transpose(m1) - oblicz macierz transponowaną macierzy m1\n");
+                        result.Append("m1[1][2] - wyciągnij konkretną wartość z macierzy m1\n");
+                        result.Append("Write(m1) - wypisz macierz m1\n");
+                        result.Append("m1 == m2 - porównaj macierz m1 i m2\n");
+                        return result;
                         //default:
                         //    foreach (KeyValuePair<String, dynamic> entry in variables)
                         //        result.Append(entry.Key);
